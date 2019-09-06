@@ -100,6 +100,18 @@ function main(){
     ctx = document.getElementById("road01").getContext('2d');
     car3 = new car_x(50,80,"black",ctx);
     car3.bgcolor = "blanchedalmond";
+    car4 = new car_x(100,80,"blue",ctx);
+    car4.bgcolor = "blanchedalmond";
+    car5 = new car_x(200,80,"red",ctx);
+    car5.bgcolor = "blanchedalmond";
+
+    /* road01の画像取得 */
+    var imagedata = ctx.getImageData(100, 80, 2, 2);
+
+    console.log(imagedata.data)
+    console.log(imagedata.data[1])
+    console.log(imagedata.data[2])
+    console.log(imagedata.data[3])
 
     window.requestAnimationFrame(()=>loop_animation());
 }
@@ -122,8 +134,15 @@ function loop_animation(){
     /* Road01 */
     ctx = document.getElementById("road01").getContext('2d');
     car3.move(1);
+    car4.move(3);
+    car5.move(-2);
 
 
     /* アニメーションループ */
     window.requestAnimationFrame((x)=>loop_animation(x));
 }
+/*
+[TODO]
+[]世界の1ターンの同時性 先行が有利？
+[]car.move(1.5) としたときに残像が残る問題
+*/
