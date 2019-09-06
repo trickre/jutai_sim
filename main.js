@@ -58,17 +58,31 @@ class car_x{
         this.draw_self();
         this.bgcolor = "gray";
 
+        this.speed = 0;     /* (px/frame) */
+
         /* 世界の情報 */
         this.world_width = 800; //px
         /* 前回値更新 */
         this.x0 = this.x;
     }
 
-    move(x_move){
+    /* 加速 */
+    /* accell (px/frame/frame) */
+    accell_move(accell){
+        this.speed = this.speed + accell;
+        this.move_inertial();
+    }
+
+    /* 慣性運動 */
+    move_inertial(){
+        this.move(this.speed);
+    }
+
+    move(speed){
         /* 世界の大きさを考慮 */    //[TODO]値のsetterにも考慮させるべきか
-        this.x = this.x + x_move;
+        this.x = this.x + speed;
         if(this.x > this.world_width){
-            this.x = (this.x + x_move)%this.world_width;
+            this.x = (this.x + speed)%this.world_width;
         }else if(this.x < 0){
             this.x = this.world_width - this.x;
         }
@@ -100,6 +114,7 @@ function main(){
     ctx = document.getElementById("road01").getContext('2d');
     car3 = new car_x(50,80,"black",ctx);
     car3.bgcolor = "blanchedalmond";
+
     car4 = new car_x(100,80,"blue",ctx);
     car4.bgcolor = "blanchedalmond";
     car5 = new car_x(200,80,"red",ctx);
@@ -133,10 +148,9 @@ function loop_animation(){
 
     /* Road01 */
     ctx = document.getElementById("road01").getContext('2d');
-    car3.move(1);
-    car4.move(3);
-    car5.move(-2);
 
+    //car3.move_inertial();
+    car3.accell_move(0.01);
 
     /* アニメーションループ */
     window.requestAnimationFrame((x)=>loop_animation(x));
