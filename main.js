@@ -66,6 +66,73 @@ class car_x{
         this.x0 = this.x;
     }
 
+    /* 自動ブレーキ */
+    auto_brake(){
+        var eye_range=10;
+        var brake_amp=0;
+        if(this.speed > 0){
+            eye_range = 10;
+            brake_amp = -2;
+        }else{
+            eye_range = -10;
+            brake_amp  = 2;
+        }
+
+        if(this.watch_ahead(eye_range) == true){
+            this.accell_move(brake_amp)
+            console.log("brake");
+        }
+    }
+
+    /* eye_range: (正の整数) 視界距離 */
+    /* return true:前方に障害物あり */
+    watch_ahead(eye_range){
+        var eye_x;
+        for(eye_x=0;eye_x<=eye_range;eye_x++){
+            if(this.watch_a_point(eye_x) == true){
+                return(true);
+            };
+        }
+    }
+
+    /* 自分から進行方向に range 離れた点(pixel)を見る。物体があれば(背景と異なる色であれば)true*/
+    watch_a_point(range){
+        /* 進行方向を考慮 */
+        if(this.speed < 0){
+            range = (-1) * range;
+        }
+        if(this.speed == 0){
+            console.log("stop");
+        }
+
+        /* 見るべき画像の位置を計算 */
+        var x_px_watch = this.x + range;
+        if(x_px_watch > this.world_width){
+            x_px_watch = x_px_watch %this.world_width;
+        }else if(this.x < 0){
+            x_px_watch = this.world_width - x_px_watch;
+        }
+        var y_px_watch = this.y;
+
+        /* road01の画像取得 */
+        var imagedata = ctx.getImageData(x_px_watch, y_px_watch, 1, 1);
+
+        var ret = false;
+        if(   (imagedata.data[0] > 0)
+            ||(imagedata.data[1] > 0)
+            ||(imagedata.data[2] > 0)){
+            //||(imagedata.data[3] > 0)){
+
+                ret = true;
+                console.log(ret);
+        }
+        //console.log(imagedata.data);
+        //console.log(imagedata.data[1]);
+        //console.log(imagedata.data[2]);
+        //console.log(imagedata.data[3]);
+
+        return ret;
+    }
     /* 加速 */
     /* accell (px/frame/frame) */
     accell_move(accell){
@@ -75,6 +142,7 @@ class car_x{
 
     /* 慣性運動 */
     move_inertial(){
+        this.auto_brake();
         this.move(this.speed);
     }
 
@@ -114,19 +182,12 @@ function main(){
     ctx = document.getElementById("road01").getContext('2d');
     car3 = new car_x(50,80,"black",ctx);
     car3.bgcolor = "blanchedalmond";
-
+    car3.speed = 1;
     car4 = new car_x(100,80,"blue",ctx);
     car4.bgcolor = "blanchedalmond";
     car5 = new car_x(200,80,"red",ctx);
     car5.bgcolor = "blanchedalmond";
 
-    /* road01の画像取得 */
-    var imagedata = ctx.getImageData(100, 80, 2, 2);
-
-    console.log(imagedata.data)
-    console.log(imagedata.data[1])
-    console.log(imagedata.data[2])
-    console.log(imagedata.data[3])
 
     window.requestAnimationFrame(()=>loop_animation());
 }
@@ -149,8 +210,8 @@ function loop_animation(){
     /* Road01 */
     ctx = document.getElementById("road01").getContext('2d');
 
-    //car3.move_inertial();
-    car3.accell_move(0.01);
+    car3.move_inertial();
+    car3.auto_brake();
 
     /* アニメーションループ */
     window.requestAnimationFrame((x)=>loop_animation(x));
